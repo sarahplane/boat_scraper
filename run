@@ -1,13 +1,10 @@
 #! /usr/bin/env ruby
 
-$VERBOSE=nil
-
 require 'nokogiri'
 require 'open-uri'
 require 'awesome_print'
-require 'pp'
 
-index_href = 'https://www.yachtworld.com/boats-for-sale/type-sail/?price=1000-100000'
+index_href = 'https://www.yachtworld.com/boats-for-sale/condition-used/type-sail/region-northamerica/country-united-states/'
 doc = Nokogiri::HTML(URI.open(index_href))
 
 boat_ids = doc.css('div.listings-container > a > div.row.listing-card').map do |link|
