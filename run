@@ -34,7 +34,7 @@ boats = boat_ids.map do |ywid|
     ywid: ywid,
     href: href,
     title: boat_page.css("div.boat-title > h1").first.text.strip,
-    price: boat_page.css("div.boat-price").first.text.strip,
+    price: boat_page.css("div.boat-price").first.text.strip.tr('^0-9', '').to_i,
     location: boat_page.css("div.boat-location").first.text.strip,
     **desc_list.slice(*desc_allow_list),
     other: desc_list.reject { |k, v| desc_allow_list.include?(k) },
