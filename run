@@ -1,0 +1,48 @@
+#! /usr/bin/env ruby
+
+$VERBOSE=nil
+
+require 'nokogiri'
+require 'open-uri'
+require 'awesome_print'
+require 'pp'
+
+index_href = 'https://www.yachtworld.com/boats-for-sale/type-sail/?price=1000-100000'
+doc = Nokogiri::HTML(URI.open(index_href))
+
+boat_ids = doc.css('div.listings-container > a > div.row.listing-card').map do |link|
+  next unless link["id"]
+ 
+  link["id"]  
+end
+
+boat_links = doc.css("a").reject { |a| a["data-reporting-click-product-id"].nil? }
+
+desc_white_list = %i(
+  year
+  length
+)
+
+boats = boat_ids.map do |ywid|
+  href = boat_links.find { |a| a["data-reporting-click-product-id"] == ywid }["href"]
+  boat_page = Nokogiri::HTML(URI.open(href))
+
+  desc_list = boat_page.css('div.boatdetails').search('dt').reduce({}) do |atts, node|
+    key = node.text.downcase.gsub(":", "").gsub(" ", "_").gsub("/", "_").to_sym
+    atts[key] = node.next_element.text.strip
+    atts
+  end
+ 
+  {
+    ywid: ywid,
+    href: href,
+    title: boat_page.css("div.boat-title > h1").first.text.strip,
+    price: boat_page.css("div.boat-price").first.text.strip,
+    location: boat_page.css("div.boat-location").first.text.strip,
+    **desc_list.slice(*desc_white_list),
+    other: desc_list.reject { |k, v| desc_white_list.include?(k) },
+  }
+end
+
+ap boats
+
