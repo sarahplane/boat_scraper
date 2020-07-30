@@ -15,7 +15,7 @@ end
 
 boat_links = doc.css("a").reject { |a| a["data-reporting-click-product-id"].nil? }
 
-desc_white_list = %i(
+desc_allow_list = %i(
   year
   length
 )
@@ -36,8 +36,8 @@ boats = boat_ids.map do |ywid|
     title: boat_page.css("div.boat-title > h1").first.text.strip,
     price: boat_page.css("div.boat-price").first.text.strip,
     location: boat_page.css("div.boat-location").first.text.strip,
-    **desc_list.slice(*desc_white_list),
-    other: desc_list.reject { |k, v| desc_white_list.include?(k) },
+    **desc_list.slice(*desc_allow_list),
+    other: desc_list.reject { |k, v| desc_allow_list.include?(k) },
   }
 end
 
